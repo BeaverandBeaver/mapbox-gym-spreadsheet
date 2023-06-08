@@ -68,6 +68,7 @@
         }
 
         .gym-item {
+            min-height: 40px;
             padding: 20px;
             cursor: pointer;
             display: flex;
@@ -86,6 +87,7 @@
         .gym-item-buttons>.button {
             display: block;
             margin: 5px;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -98,7 +100,7 @@
         type="text/css">
 
     <div class="map-container">
-        <div id="gym-info">View</div>
+        <div id="gym-info"></div>
         <div id="map"></div>
     </div>
 
@@ -254,7 +256,6 @@
                 div.appendChild(phone)
                 container.appendChild(div)
                 container.appendChild(buttons)
-
                 gymInfoDiv.appendChild(container)
 
                 return container
