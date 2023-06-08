@@ -33,7 +33,6 @@
             font-size: .875rem;
             font-weight: 500;
             font-family: Inter, sans-serif;
-
         }
 
         .map-container {
@@ -81,6 +80,12 @@
             height: 80px;
             transition: height .3s ease-in-out;
             border-bottom: 2px solid black;
+            overflow: hidden;
+        }
+
+        .gym-item-buttons>.button {
+            display: block;
+            margin: 5px;
         }
     </style>
 </head>
@@ -210,7 +215,6 @@
 
         function generateDivs(data, mapRef) {
 
-
             const allItems = data.map(d => {
 
                 const container = document.createElement("div")
@@ -218,11 +222,10 @@
                 container.addEventListener('click', () => {
 
                     allItems.forEach(el => {
-                        console.log('el', el);
                         el.style.height = "80px"
                     });
+
                     container.style.height = "250px"
-                    console.log('d', d);
                     mapRef.flyTo({
                         center: d.geometry.coordinates,
                         zoom: 16
@@ -240,9 +243,17 @@
                 phone.classList.add("gym-phone")
                 phone.textContent = d.properties.phone
 
+                const buttons = document.createElement("div")
+                buttons.classList.add("gym-item-buttons")
+                buttons.innerHTML = `
+                    <a href="/memberships" class="button is-secondary w-button">join now</a>
+                    <a href="/locations/${d.properties.url}" class="button is-secondary w-button">learn more</a>
+                `
+
                 div.appendChild(name)
                 div.appendChild(phone)
                 container.appendChild(div)
+                container.appendChild(buttons)
 
                 gymInfoDiv.appendChild(container)
 
