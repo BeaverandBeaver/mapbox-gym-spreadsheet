@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Supplement forward geocoding search results with another data source</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .button {
+            color: #fff;
+            text-align: center;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            background-color: #e20303;
+            border: 2px solid #e20303;
+            padding: 1.5rem 2rem;
+            font-size: .875rem;
+            font-weight: 500;
+            font-family: Inter, sans-serif;
+
+        }
+
+        .map-container {
+            display: flex;
+            flex-direction: row;
+            height: 500px;
+        }
+
+        .map-container>div {
+            flex: 1;
+        }
+
+        .map-popup {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .map-popup>a {
+            margin: 10px;
+            text-decoration: none;
+        }
+
+        #gym-info {
+            overflow-y: scroll;
+        }
+
+        .gym-phone {
+            border: 1px solid red;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .gym-item {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+        }
+
+        .gym-item-container {
+            height: 80px;
+            transition: height .3s ease-in-out;
+            border-bottom: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+        type="text/css">
+
+    <div class="map-container">
+        <div id="gym-info">View</div>
+        <div id="map"></div>
+    </div>
+
+    <script>
+
+        const gymInfoDiv = document.getElementById('gym-info')
+        const icon = "data:image/png;base64,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"
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYnJhbmRvbmJlYXZlcjI3IiwiYSI6ImNsaW41emJrbzB5MWYzaG1tMzJneXZzbmIifQ.0wpJDmtUh_XMJyhEcdsb1g';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/dark-v11',
+            center: { lng: -98.59151051914739, lat: 38.61551788549133 },
+            zoom: 3.8,
+        });
+
+        map.on('load', () => {
+
+            const imageElement = new Image();
+            imageElement.onload = () => {
+                // Add the image to the map
+                map.addImage("gymicon", imageElement);
+            };
+            imageElement.src = icon;
+            imageElement.width = 50
+            imageElement.height = 50
+
+            d3.csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vT-YaAdNJPo1Q514FxW2aipCW6Nx3OkGhFh-iJDh5v8WeB1II-_utKk10HOy9xg5WKexFhrDRQO5-eO/pub?output=csv")
+                .then(data => {
+                    console.log('data', data);
+
+                    const bounds = new mapboxgl.LngLatBounds();
+
+                    const gyms = data.map(d => {
+                        bounds.extend([+d.lng, +d.lat]);
+                        return {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [+d.lng, +d.lat]
+                            },
+                            properties: {
+                                ...d
+                            }
+                        }
+                    })
+
+                    generateDivs(gyms, map);
+
+                    map.getSource('gyms').setData({
+                        type: 'FeatureCollection',
+                        features: gyms
+                    });
+                    map.fitBounds(bounds, { padding: 50 })
+                })
+
+            map.addSource('gyms', {
+                type: 'geojson',
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                }
+            });
+
+            map.addLayer({
+                id: 'points',
+                type: 'circle',
+                source: 'gyms',
+                paint: {
+                    'circle-color': '#11b4da',
+                    'circle-radius': 4,
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#fff'
+                }
+            });
+
+            map.addLayer({
+                'id': 'iocns',
+                'type': 'symbol',
+                'source': 'gyms',
+                'layout': {
+                    'icon-image': 'gymicon',
+                    'icon-size': .7,
+                    'icon-allow-overlap': true
+                }
+            });
+
+            map.on('click', 'iocns', (e) => {
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const props = e.features[0].properties;
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                const div = `
+                    <div class="map-popup">
+                        <h1>${props.name}</h1>
+                        <a href="/memberships" class="button is-secondary w-button">join now</a>
+                        <a href="/locations/${props.url}" class="button is-secondary w-button">learn more</a>
+                    </div>
+                `
+                new mapboxgl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(div)
+                    .addTo(map);
+            });
+
+            map.on('mouseenter', 'iocns', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+            map.on('mouseleave', 'iocns', () => {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+
+        function generateDivs(data, mapRef) {
+
+
+            const allItems = data.map(d => {
+
+                const container = document.createElement("div")
+                container.classList.add("gym-item-container")
+                container.addEventListener('click', () => {
+
+                    allItems.forEach(el => {
+                        console.log('el', el);
+                        el.style.height = "80px"
+                    });
+                    container.style.height = "250px"
+                    console.log('d', d);
+                    mapRef.flyTo({
+                        center: d.geometry.coordinates,
+                        zoom: 16
+                    })
+                })
+
+                const div = document.createElement("div")
+                div.classList.add("gym-item")
+
+                const name = document.createElement("div")
+                name.classList.add("gym-name")
+                name.textContent = d.properties.name
+
+                const phone = document.createElement("div")
+                phone.classList.add("gym-phone")
+                phone.textContent = d.properties.phone
+
+                div.appendChild(name)
+                div.appendChild(phone)
+                container.appendChild(div)
+
+                gymInfoDiv.appendChild(container)
+
+                return container
+            })
+
+
+        }
+    </script>
+
+</body>
+
+</html>
