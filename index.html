@@ -226,13 +226,7 @@
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
 
-                const address = props.address.replace(",", "<br>")
-                const div = `
-                            <div class="map-popup">
-                                <div class="gym-name">${props.name}</div>
-                                ${address}
-                            </div>
-                        `
+                const div = popupInfo(props)
 
                 new mapboxgl.Popup({ offset: [0, -10] })
                     .setLngLat(coordinates)
@@ -257,6 +251,18 @@
                 map.getCanvas().style.cursor = '';
             });
         });
+
+        function popupInfo(props) {
+            const address = props.address.replace(",", "<br>")
+            const div = `
+                            <div class="map-popup">
+                                <img src="FitStop24 Black logo.png" style="margin-bottom:10px;">
+                                <div class="gym-name">${props.name}</div>
+                                ${address}
+                            </div>
+                        `
+            return div
+        }
 
         function generateDivs(data, mapRef) {
 
@@ -284,15 +290,7 @@
                     })
 
                     map.once("idle", () => {
-                        // map.fire('click', {
-                        //     lngLat: new mapboxgl.LngLat(coords[0], coords[1])
-                        // })
-                        const div = `
-                            <div class="map-popup">
-                                <div class="gym-name">${d.properties.name}</div>
-                                ${address}
-                            </div>
-                        `
+                        const div = popupInfo(d.properties)
                         new mapboxgl.Popup({ offset: [0, -10] })
                             .setLngLat(coords)
                             .setHTML(div)
