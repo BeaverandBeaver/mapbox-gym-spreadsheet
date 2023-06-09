@@ -43,8 +43,15 @@
             height: 500px;
         }
 
-        .map-container>div {
-            flex: 1;
+        .map-container>div:first-child {
+            flex-basis: 60%;
+        }
+
+        @media (max-width: 768px) {
+            .map-container {
+                flex-direction: column;
+                height: 100vh;
+            }
         }
 
         .map-popup {
@@ -52,6 +59,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: flex-start;
+            font-family: Inter, sans-serif;
         }
 
         .map-popup>a {
@@ -64,6 +72,7 @@
             background-color: black;
             color: white;
             font-family: Inter, sans-serif;
+            border-right: 2px solid #434343;
         }
 
         .gym-name {
@@ -72,9 +81,19 @@
             font-family: Inter, sans-serif;
         }
 
+        .gym-name-popup {
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: Inter, sans-serif;
+            margin-bottom: 10px;
+        }
+
         .gym-phone {
             border: 1px solid white;
             padding: 10px 20px;
+            width: 120px;
+            display: flex;
+            justify-content: center;
         }
 
         .gym-phone:hover {
@@ -116,8 +135,7 @@
         }
 
         .gym-address {
-            margin-bottom: 10px;
-
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -238,7 +256,8 @@
                 gDiv.expand()
                 setTimeout(() => {
                     gDiv.container.scrollIntoView({
-                        behavior: 'smooth'
+                        behavior: 'smooth',
+                        block: 'start'
                     });
                 }, 1000)
 
@@ -257,7 +276,7 @@
             const div = `
                             <div class="map-popup">
                                 <img src="FitStop24 Black logo.png" style="margin-bottom:10px;">
-                                <div class="gym-name">${props.name}</div>
+                                <div class="gym-name-popup">${props.name}</div>
                                 ${address}
                             </div>
                         `
@@ -306,8 +325,13 @@
                 name.textContent = d.properties.name
 
                 const phone = document.createElement("div")
-                phone.classList.add("gym-phone")
-                phone.textContent = d.properties.phone
+                if (d.properties.phone) {
+                    phone.classList.add("gym-phone")
+                    phone.textContent = d.properties.phone
+                    phone.addEventListener("click", () => {
+                        window.location.href = 'tel://' + d.properties.phone;
+                    })
+                }
 
                 const buttons = document.createElement("div")
                 buttons.classList.add("gym-item-buttons")
