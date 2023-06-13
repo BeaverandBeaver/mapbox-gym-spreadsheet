@@ -17,29 +17,10 @@
         }
 
         #map {
-            height: 100%;
+            position: absolute;
+            top: 0;
+            bottom: 0;
             width: 100%;
-        }
-
-        .button {
-            color: #fff;
-            text-align: center;
-            letter-spacing: 1.4px;
-            background-color: #e20303;
-            border: 2px solid #e20303;
-            padding: 15px 20px;
-            font-size: .875rem;
-            font-weight: 500;
-            font-family: Inter, sans-serif;
-            /* uppercase */
-            text-transform: uppercase;
-            box-sizing: border-box;
-        }
-
-        .map-container {
-            display: flex;
-            flex-direction: row;
-            height: 500px;
         }
 
         .map-popup {
@@ -54,21 +35,14 @@
             margin: 10px;
             text-decoration: none;
         }
-
-        @media (max-width: 768px) {
-            .map-container {
-                flex-direction: column;
-                height: 100vh;
-            }
-        }
     </style>
 </head>
 
 <body>
 
-    <div class="map-container">
-        <div id="map"></div>
-    </div>
+
+    <div id="map"></div>
+
 
     <script>
 
@@ -193,7 +167,7 @@
         function findLocation() {
             const getUrl = new URL(window.location.href);
             const urlValue = getUrl.searchParams.get('url');
-
+            if (!urlValue) return;
             const regex = /locations\/(.+)/i; // "i" flag makes the search case-insensitive
             const match = urlValue.match(regex);
 
